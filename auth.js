@@ -11,8 +11,6 @@ function authMiddleware(req, res, next) {
             message: "Unauthorized"
         });
     }
-
-
 }
 
 module.exports = authMiddleware;
