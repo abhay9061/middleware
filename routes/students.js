@@ -27,7 +27,6 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-
 // ✅ Get All Students
 router.get('/', authMiddleware, async (req, res) => {
   try {
