@@ -15,7 +15,6 @@ router.post('/', authMiddleware, async (req, res) => {
       .select();
 
     if (error) throw error;
-
     res.json({
       success: true,
       message: "Student created successfully",
