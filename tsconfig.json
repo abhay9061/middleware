@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    /* File Structure */
+    "rootDir": "./src",
+    "outDir": "./dist",
+    /* Environment */
+    "module": "commonjs",
+    "target": "ES6",
+    "lib": [
+      "ES6"
+    ],
+    "types": [
+      "node"
+    ],
+    /* Interop */
+    "esModuleInterop": true,
+    /* Strictness */
+    "strict": true,
+    "skipLibCheck": true,
+    /* Extras */
+    "resolveJsonModule": true,
+    "sourceMap": true
+  }
+}

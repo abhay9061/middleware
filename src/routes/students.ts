@@ -1,11 +1,12 @@
-const express = require('express');
+import express, { Request, Response } from "express";
 const router = express.Router();
-const supabase = require('../config/supabase');
-const authMiddleware = require('../middleware/auth');
+import supabase from "../config/supabase";
+import authMiddleware from "../middleware/auth";
+
 
 
 // ✅ Create Student
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', authMiddleware, async (req: Request, res: Response) => {
   try {
     const { name, email, course } = req.body;
 
@@ -18,37 +19,42 @@ router.post('/', authMiddleware, async (req, res) => {
     res.json({
       success: true,
       message: "Student created successfully",
-      data: data[0]
+      data: data?.[0],
     });
 
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (error) {
+    if (error instanceof Error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message
+      })
+    } else
+      res.status(500).json({ success: false, message: "Server Error" });
   }
 });
 
+
 // ✅ Get All Students
 router.get('/', authMiddleware, async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from('student')
-      .select('*');
+  const { data, error } = await supabase
+    .from('student')
+    .select('id,name,email,course');
 
-    if (error) throw error;
-
-    res.json({
-      success: true,
-      count: data.length,
-      data
+  if (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message
     });
-
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
   }
+  res.json({
+    success: true,
+    data
+  });
 });
 
 
 // ✅ Get Single Student
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -65,14 +71,14 @@ router.get('/:id', authMiddleware, async (req, res) => {
       data
     });
 
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
 
 // ✅ Update Student
-router.put('/:id', authMiddleware, async (req, res) => {
+router.put('/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -90,14 +96,14 @@ router.put('/:id', authMiddleware, async (req, res) => {
       data: data[0]
     });
 
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
 
 // ✅ Delete Student
-router.delete('/:id', authMiddleware, async (req, res) => {
+router.delete('/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -113,9 +119,11 @@ router.delete('/:id', authMiddleware, async (req, res) => {
       message: "Student deleted successfully"
     });
 
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-module.exports = router;
+
+
+export default router;
