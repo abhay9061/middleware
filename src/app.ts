@@ -23,29 +23,6 @@ app.get("/api/protected-message", authMiddleware, (req: Request, res: Response) 
 });
 
 
-/*
-// Public route
-app.get("/health", (req: Request, res: Response) => {
-  res.json({ message: "Server is running" });
-});
-
-// Protected route
-app.get(
-  "/api/protected-message",
-  authMiddleware,
-  (req: Request, res: Response) => {
-    res.json({
-      success: true,
-      message: "Auth middleware is working correctly",
-    });
-  }
-);
-
-// Routes
-//app.use("/api/students", studentRoutes);
-
-*/
-
 const PORT: number = 3000;
 
 app.listen(PORT, () => {
