@@ -6,6 +6,21 @@ import studentsRoutes from "./routes/students";
 const app = express();
 app.use(express.json());
 
+
+import { connectRedis } from './config/redis';
+
+
+async function startServer() {
+  await connectRedis(); //  Redis connect
+
+  app.listen(3000, () => {
+    console.log('Server running on port 3000');
+  });
+}
+
+startServer();
+
+
 app.use("/api/students", studentsRoutes);
 app.use("api/students/:id", studentsRoutes);
 
