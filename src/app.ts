@@ -1,45 +1,39 @@
-import express, { Request, Response } from "express";
-import authMiddleware from "./middleware/auth";
-// import studentRoutes from "./routes/students";
-import studentsRoutes from "./routes/students";
+import dotenv from "dotenv";
+dotenv.config(); // 👈 SABSE PEHLE
+
+import express, { Request, Response, NextFunction } from "express";
+import studentRoutes from "./routes/student.routes";
 
 const app = express();
+
+// Middleware
 app.use(express.json());
 
+// Routes
+app.use("/students", studentRoutes);
 
-import { connectRedis } from './config/redis';
-
-
-async function startServer() {
-  await connectRedis(); //  Redis connect
-
-  app.listen(3000, () => {
-    console.log('Server running on port 3000');
-  });
-}
-
-startServer();
-
-
-app.use("/api/students", studentsRoutes);
-app.use("api/students/:id", studentsRoutes);
-
-app.get("/health", authMiddleware, (req: Request, res: Response) => {
-  res.send("Application is Running");
-})
-
-
-
-app.get("/api/protected-message", authMiddleware, (req: Request, res: Response) => {
+// Health Check
+app.get("/", (req: Request, res: Response) => {
   res.json({
     success: true,
-    message: "Auth Middleware is working correctly"
+    message: "API is running 🚀",
   });
 });
 
+// Error Handler
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error("❌ Error:", err);
 
-const PORT: number = 3000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
 });
+
+const port = 3000;
+
+app.listen(port, () => {
+  console.log(`Server running 🚀 ${port}`);
+});
+
+export default app;
