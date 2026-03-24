@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import redisClient from "../../config/redis";
-import { generateHashKey } from "../../utils/hash-url";
 
 export const postCacheMiddleware = async (
     req: Request,
@@ -15,27 +14,39 @@ export const postCacheMiddleware = async (
             return next();
         }
 
-        // ✅ Only cache GET requests
-        if (req.method === "GET") {
-            const fullUrl = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
+        // Get cache policy
+        const {
+            skipCacheWrite = false, cacheKey, cacheStatus = "MISS"
+        } = res.locals.cachePolicy || {};
 
-            const userId = (req as any).user?.id || "guest";
+        // Preserve X-Cache header (important)
+        if (!res.getHeader("X-Cache")) {
+            res.setHeader("X-Cache", cacheStatus);
+        }
 
-            // ✅ Unique key (URL + user)
-            const hashKey = generateHashKey(`${fullUrl}-${userId}`);
+        //  Skip cache write (no-store case)
+        if (skipCacheWrite) {
+            return res.status(statusCode).json(responseBody);
+        }
 
+        //  Only cache GET requests
+        if (req.method === "GET" && cacheKey) {
             try {
-                await redisClient.set(hashKey, JSON.stringify(responseBody), {
-                    EX: 3600, // 1 hour
-                });
+                await redisClient.set(
+                    cacheKey,
+                    JSON.stringify(responseBody),
+                    {
+                        EX: 3600, // TTL
+                    }
+                );
 
-                console.log("✅ Cached:", hashKey);
+                console.log("Cached:", cacheKey);
             } catch (err) {
-                console.error("❌ Redis Save Error:", err);
+                console.error(" Redis Save Error:", err);
             }
         }
 
-        // ✅ FINAL RESPONSE SEND
+        //  FINAL RESPONSE
         return res.status(statusCode).json(responseBody);
 
     } catch (err) {

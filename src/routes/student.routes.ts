@@ -3,6 +3,8 @@ const router = express.Router();
 
 import { apiKeyMiddleware } from "../middleware/pre/auth.middleware";
 import { postCacheMiddleware } from "../middleware/post/post-cache.middleware";
+import { preCacheMiddleware } from "../middleware/pre/pre-cache.middleware";
+
 
 import {
     createStudentHandler,
@@ -18,6 +20,7 @@ router.post("/", apiKeyMiddleware, createStudentHandler, postCacheMiddleware);
 // GET ALL
 router.get("/",
     apiKeyMiddleware,
+    preCacheMiddleware,
     studentListHandler,
     postCacheMiddleware
 );
@@ -26,6 +29,7 @@ router.get("/",
 router.get(
     "/:id",
     apiKeyMiddleware,
+    preCacheMiddleware,
     getStudentByIdHandler,
     postCacheMiddleware
 );
