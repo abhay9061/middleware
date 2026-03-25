@@ -6,12 +6,15 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "start": "ts-node src/app.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "worker": "ts-node src/queues/student.worker.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.99.2",
+    "bullmq": "^5.71.0",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "ioredis": "^5.10.1",
     "redis": "^5.11.0"
   },
   "devDependencies": {

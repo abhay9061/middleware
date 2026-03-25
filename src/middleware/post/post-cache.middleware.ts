@@ -16,7 +16,9 @@ export const postCacheMiddleware = async (
 
         // Get cache policy
         const {
-            skipCacheWrite = false, cacheKey, cacheStatus = "MISS"
+            skipCacheWrite = false,
+            cacheKey,
+            cacheStatus = "MISS",
         } = res.locals.cachePolicy || {};
 
         // Preserve X-Cache header (important)
@@ -24,29 +26,28 @@ export const postCacheMiddleware = async (
             res.setHeader("X-Cache", cacheStatus);
         }
 
-        //  Skip cache write (no-store case)
+        // Skip cache write (no-store case)
         if (skipCacheWrite) {
             return res.status(statusCode).json(responseBody);
         }
 
-        //  Only cache GET requests
+        // Only cache GET requests
         if (req.method === "GET" && cacheKey) {
             try {
                 await redisClient.set(
                     cacheKey,
                     JSON.stringify(responseBody),
-                    {
-                        EX: 3600, // TTL
-                    }
+                    "EX", // ✅ correct for ioredis
+                    3600
                 );
 
-                console.log("Cached:", cacheKey);
+                console.log("✅ Cached:", cacheKey);
             } catch (err) {
-                console.error(" Redis Save Error:", err);
+                console.error("❌ Redis Save Error:", err);
             }
         }
 
-        //  FINAL RESPONSE
+        // FINAL RESPONSE
         return res.status(statusCode).json(responseBody);
 
     } catch (err) {
