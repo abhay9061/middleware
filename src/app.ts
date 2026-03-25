@@ -2,15 +2,27 @@ import dotenv from "dotenv";
 dotenv.config(); // 👈 SABSE PEHLE
 
 import express, { Request, Response, NextFunction } from "express";
+
+// ✅ V1 Routes
 import studentRoutes from "./routes/student.routes";
+
+// ✅ V2 Routes (new)
+import studentV2Routes from "./v2/routes/student.routes";
 
 const app = express();
 
 // Middleware
 app.use(express.json());
 
-// Routes
+// =====================
+// 🔹 V1 Routes
+// =====================
 app.use("/students", studentRoutes);
+
+// =====================
+// 🔹 V2 Routes (Queue Based)
+// =====================
+app.use("/v2/students", studentV2Routes);
 
 // Health Check
 app.get("/", (req: Request, res: Response) => {
@@ -30,10 +42,10 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
-  console.log(`Server running 🚀 ${port}`);
+  console.log(`Server running 🚀 on port ${port}`);
 });
 
 export default app;
