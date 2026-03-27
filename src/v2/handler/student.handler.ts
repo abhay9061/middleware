@@ -3,31 +3,11 @@ import { studentQueue, JOB_TYPES } from "../../queues/student.queue";
 
 export const createStudentHandler = async (req: Request, res: Response) => {
     try {
-        const { name, email, course } = req.body;
+        const payload = res.locals.validated?.body ?? req.body;
 
-        // ✅ VALIDATION
-        if (!name || !email || !course) {
-            return res.status(400).json({
-                success: false,
-                message: "All fields are required",
-            });
-        }
+        await studentQueue.add(JOB_TYPES.CREATE_STUDENT, payload);
 
-        const emailRegex = /\S+@\S+\.\S+/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid email format",
-            });
-        }
-
-        await studentQueue.add(JOB_TYPES.CREATE_STUDENT, {
-            name,
-            email,
-            course,
-        });
-
-        return res.status(200).json({
+        return res.status(201).json({
             success: true,
             message: "Student creation job queued successfully",
         });
@@ -39,15 +19,15 @@ export const createStudentHandler = async (req: Request, res: Response) => {
     }
 };
 
-// ✅ UPDATE STUDENT HANDLER
+// UPDATE STUDENT HANDLER
 export const updateStudentHandler = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
-        const data = req.body;
+        const params = res.locals.validated?.params ?? req.params;
+        const body = res.locals.validated?.body ?? req.body;
 
         await studentQueue.add(JOB_TYPES.UPDATE_STUDENT, {
-            id,
-            ...data,
+            id: params.id,
+            ...body,
         });
 
         return res.status(200).json({
@@ -62,13 +42,13 @@ export const updateStudentHandler = async (req: Request, res: Response) => {
     }
 };
 
-// ✅ DELETE STUDENT HANDLER
+// DELETE STUDENT HANDLER
 export const deleteStudentHandler = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const params = res.locals.validated?.params ?? req.params;
 
         await studentQueue.add(JOB_TYPES.DELETE_STUDENT, {
-            id,
+            id: params.id,
         });
 
         return res.status(200).json({
